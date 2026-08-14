@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impressão Almox</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --bg-base:    #0f172a;
+            --bg-card:    #1e293b;
+            --border:     #334155;
+            --border-lt:  #475569;
+            --text:       #e2e8f0;
+            --text-muted: #64748b;
+            --accent:     #3b82f6;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--bg-base);
+            min-height: 100vh;
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        /* ── Navbar ── */
+        .app-nav {
+            background: #080f1e;
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+        }
+        .app-nav .brand {
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: .5px;
+            color: var(--text);
+        }
+        .app-nav .sub {
+            font-size: .75rem;
+            color: var(--text-muted);
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            border-radius: 14px 14px 0 0 !important;
+            padding: 14px 20px;
+        }
+        .card-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text);
+            font-size: .9rem;
+        }
+
+        /* ── Form controls ── */
+        .form-label {
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .form-control, .form-select {
+            background: var(--bg-base);
+            border-color: var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: .9rem;
+        }
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-base);
+            border-color: var(--accent);
+            color: var(--text);
+            box-shadow: 0 0 0 3px rgba(59,130,246,.2);
+        }
+        .form-control::placeholder { color: var(--text-muted); }
+        .form-select option { background: var(--bg-card); }
+
+        .badge-fixed {
+            background: rgba(59,130,246,.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59,130,246,.35);
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .5px;
+            vertical-align: middle;
+        }
+
+        /* +/- buttons */
+        .btn-qty {
+            background: var(--bg-base);
+            border-color: var(--border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            line-height: 1;
+        }
+        .btn-qty:hover {
+            background: var(--border);
+            color: var(--text);
+            border-color: var(--border-lt);
+        }
+        .btn-qty:focus { box-shadow: none; }
+
+        /* ── Print button ── */
+        .btn-print {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .95rem;
+            letter-spacing: .4px;
+            padding: 12px;
+            transition: transform .15s, box-shadow .15s;
+            color: #fff;
+        }
+        .btn-print:hover:not(:disabled) {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(37,99,235,.45);
+            color: #fff;
+        }
+        .btn-print:active { transform: translateY(0); }
+        .btn-print:disabled { opacity: .65; }
+
+        hr.divider { border-color: var(--border); margin: 1.4rem 0; }
+
+        .btn-font {
+            background: var(--bg-base);
+            border-color: var(--border);
+            color: var(--text-muted);
+            font-size: .82rem;
+        }
+        .btn-check:checked + .btn-font {
+            background: rgba(59,130,246,.18);
+            color: #60a5fa;
+            border-color: #2563eb;
+        }
+        .btn-font:hover:not(:disabled) {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        /* ── Label preview ── */
+        .preview-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .label-card {
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 6px 28px rgba(0,0,0,.5);
+            width: 350px;
+            height: 125px;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        /* dashed border simulating label edge */
+        .label-card::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1.5px dashed #e5e7eb;
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .label-text-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 10px 10px 12px;
+        }
+        .label-row {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+        .label-key {
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #374151;
+            text-transform: uppercase;
+            white-space: nowrap;
+            min-width: 50px;
+        }
+        .label-val {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #111827;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+        .label-val.empty { color: #c9d1db; font-weight: 400; font-style: italic; }
+
+        .label-qr-col {
+            width: 108px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1.5px dashed #e5e7eb;
+            padding: 6px;
+            flex-shrink: 0;
+        }
+        #qrcode canvas, #qrcode img {
+            max-width: 92px !important;
+            max-height: 92px !important;
+        }
+        .qr-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: #d1d5db;
+        }
+        .qr-empty i { font-size: 2rem; }
+        .qr-empty span { font-size: 9px; }
+
+        /* ── Printer status badge ── */
+        .printer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(34,197,94,.1);
+            color: #4ade80;
+            border: 1px solid rgba(34,197,94,.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: .75rem;
+            font-weight: 600;
+            max-width: 100%;
+        }
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4ade80;
+            flex-shrink: 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: .4; transform: scale(.8); }
+        }
+        .printer-name-badge {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ── Copies input ── */
+        .copies-group {
+            display: flex;
+            max-width: 130px;
+        }
+        .copies-group input {
+            text-align: center;
+            min-width: 0;
+            flex: 1;
+            border-left: none;
+            border-right: none;
+            border-radius: 0 !important;
+        }
+        .copies-group .btn-qty:first-child { border-radius: 8px 0 0 8px; }
+        .copies-group .btn-qty:last-child  { border-radius: 0 8px 8px 0; }
+
+        /* ── Toasts ── */
+        #toast { min-width: 260px; font-size: .875rem; }
+
+        /* ── Helpers ── */
+        .text-dim { color: var(--text-muted); }
+        .hint-text { font-size: .72rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* ── Printer option cards ── */
+        .printer-opt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            margin: 0;
+        }
+        .printer-opt:has(input:checked) {
+            border-color: #2563eb;
+            background: rgba(37,99,235,.1);
+        }
+        .printer-opt input[type="radio"] { display: none; }
+        .printer-opt-info { flex: 1; min-width: 0; }
+        .printer-opt-name { font-size: .82rem; font-weight: 700; color: var(--text); display: block; }
+        .printer-opt-ip   { font-size: .7rem; color: var(--text-muted); }
+        .printer-opt-check { color: #3b82f6; display: none; font-size: 1rem; flex-shrink: 0; }
+        .printer-opt:has(input:checked) .printer-opt-check { display: block; }
+
+        /* ── Copies stepper ── */
+        .copies-stepper {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            width: 160px;
+        }
+        .copies-btn {
+            width: 44px;
+            height: 48px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .copies-btn:hover { background: var(--border); color: var(--text); }
+        .copies-num {
+            flex: 1;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+            user-select: none;
+            line-height: 1;
+        }
+
+        /* ── Batch table ── */
+        .batch-table-wrap {
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .batch-table-wrap table { margin: 0; }
+        .batch-table-wrap td, .batch-table-wrap th {
+            padding: 5px 10px;
+            font-size: .8rem;
+            border-color: var(--border) !important;
+            white-space: nowrap;
+        }
+        .batch-table-wrap thead th { color: var(--text-muted); background: var(--bg-base); position: sticky; top: 0; }
+        .batch-count { font-size: .72rem; font-weight: 700; background: rgba(59,130,246,.2); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); border-radius: 20px; padding: 1px 10px; }
+    </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="app-nav">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="brand">
+            <i class="bi bi-printer-fill text-primary me-2"></i>
+            Almoxarifado · Impressão de Etiquetas
+        </div>
+        <span class="sub">ZQ521 · 25×70mm</span>
+    </div>
+</nav>
+
+<!-- ── Main ── -->
+<div class="container py-4">
+    <div class="row justify-content-center g-4">
+
+        <!-- Form -->
+        <div class="col-lg-5">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <h6><i class="bi bi-tag-fill text-primary me-2"></i>Dados da Etiqueta</h6>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <input type="radio" class="btn-check" name="printMode" id="modeInd" value="ind" autocomplete="off" checked>
+                            <label class="btn btn-font" for="modeInd"><i class="bi bi-tag me-1"></i>Individual</label>
+                            <input type="radio" class="btn-check" name="printMode" id="modeFila" value="fila" autocomplete="off">
+                            <label class="btn btn-font" for="modeFila"><i class="bi bi-list-ul me-1"></i>Fila</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form id="labelForm" novalidate>
+
+                        <!-- ── Painel: Individual ── -->
+                        <div id="paneInd">
+                        <!-- Fábrica -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <span class="badge-fixed me-2">FIXO</span>Fábrica
+                            </label>
+                            <input id="fabrica" type="text" class="form-control" required
+                                   placeholder="Ex: FAB 08" maxlength="20" autocomplete="off">
+                        </div>
+
+                        <!-- Material -->
+                        <div class="mb-2">
+                            <label class="form-label">
+                                <span class="badge-fixed me-2">FIXO</span>Material
+                            </label>
+                            <input id="material" type="text" class="form-control" required
+                                   placeholder="Ex: 100012345" maxlength="20" autocomplete="off">
+                            <p class="hint-text">
+                                <i class="bi bi-qr-code me-1"></i>
+                                O QR Code será gerado com o código do material.
+                            </p>
+                        </div>
+
+                        <!-- Descrição (opcional) -->
+                        <div class="mb-3">
+                            <label class="form-label">Descrição <span style="font-size:.7rem;font-weight:400;text-transform:none;color:var(--text-muted)">(opcional)</span></label>
+                            <input id="descricao" type="text" class="form-control"
+                                   placeholder="Ex: PARAF SEX-IN M6X1X70" maxlength="40" autocomplete="off">
+                        </div>
+
+                        <!-- Unidade (opcional) -->
+                        <div class="mb-2">
+                            <label class="form-label">Unidade <span style="font-size:.7rem;font-weight:400;text-transform:none;color:var(--text-muted)">(opcional)</span></label>
+                            <input id="unidade" type="text" class="form-control"
+                                   placeholder="Ex: UN" maxlength="10" autocomplete="off">
+                        </div>
+                        </div><!-- /#paneInd -->
+
+                        <!-- ── Painel: Fila ── -->
+                        <div id="paneFila" style="display:none">
+                        <div class="mb-3">
+                            <label class="form-label">Cole os dados aqui</label>
+                            <textarea id="batchData" class="form-control" rows="7"
+                                style="font-family: monospace; font-size:.8rem; resize:vertical;"
+                                placeholder="Cole os dados do SAP (Tab-separado):
+ID02&#9;16852902&#9;Descrição&#9;54&#9;UN
+IA02&#9;18927902&#9;Descrição&#9;149&#9;UN"></textarea>
+                            <p class="hint-text mt-1">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Col. 1=Fábrica, 2=Material, 3=Descrição, 4=Qtd, 5=Unidade. Imprime 1 cópia por item.
+                            </p>
+                        </div>
+                        <div id="batchPreview" style="display:none" class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="form-label mb-0">Itens detectados</span>
+                                <span class="batch-count" id="batchCount">0</span>
+                            </div>
+                            <div class="batch-table-wrap">
+                                <table class="table table-sm table-borderless mb-0" style="color:var(--text)">
+                                    <thead>
+                                        <tr>
+                                            <th>Fábrica</th>
+                                            <th>Material</th>
+                                            <th>Descrição</th>
+                                            <th>Unidade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="batchTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div><!-- /#paneFila -->
+
+                        <!-- Tamanho da Fonte -->
+                        <div class="mb-3 mt-3">
+                            <label class="form-label">Tamanho da fonte</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="fontSize" id="fsP" value="P" autocomplete="off">
+                                <label class="btn btn-font" for="fsP">A <small style="font-size:.7rem">Pequena</small></label>
+
+                                <input type="radio" class="btn-check" name="fontSize" id="fsM" value="M" autocomplete="off" checked>
+                                <label class="btn btn-font" for="fsM">A <small style="font-size:.7rem">Média</small></label>
+
+                                <input type="radio" class="btn-check" name="fontSize" id="fsG" value="G" autocomplete="off">
+                                <label class="btn btn-font" style="font-size:1rem" for="fsG">A <small style="font-size:.7rem">Grande</small></label>
+
+                                <input type="radio" class="btn-check" name="fontSize" id="fsXG" value="XG" autocomplete="off">
+                                <label class="btn btn-font" style="font-size:1.2rem" for="fsXG">A <small style="font-size:.7rem">Extra</small></label>
+                            </div>
+                        </div>
+
+                        <hr class="divider">
+
+                        <!-- Impressora -->
+                        <label class="form-label">Impressora</label>
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            {% for p in printers %}
+                            <label class="printer-opt">
+                                <input type="radio" name="printerChoice" value="{{ p.key }}"
+                                       {% if loop.first %}checked{% endif %} autocomplete="off">
+                                <span class="pulse-dot" style="flex-shrink:0"></span>
+                                <div class="printer-opt-info">
+                                    <span class="printer-opt-name">{{ p.label }}</span>
+                                    <span class="printer-opt-ip">{{ p.ip }}</span>
+                                </div>
+                                <i class="bi bi-check-circle-fill printer-opt-check"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <select id="printer" style="display:none">
+                            {% for p in printers %}
+                            <option value="{{ p.key }}">{{ p.key }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Cópias -->
+                        <div id="copiesControl" class="mt-3">
+                            <label class="form-label">Cópias</label>
+                            <div class="copies-stepper">
+                                <button type="button" class="copies-btn" id="btnMinus">
+                                    <i class="bi bi-dash-lg"></i>
+                                </button>
+                                <span class="copies-num" id="copiesDisplay">1</span>
+                                <input id="copies" type="hidden" value="1">
+                                <button type="button" class="copies-btn" id="btnPlus">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" id="btnPrint" class="btn btn-print">
+                                <i class="bi bi-printer me-2"></i><span id="btnPrintLabel">Imprimir Etiqueta</span>
+                            </button>
+                        </div>
+                        <div class="d-grid mt-2">
+                            <button type="button" id="btnCancel"
+                                style="background:rgba(127,29,29,.18);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:8px;padding:7px;font-size:.82rem;font-weight:600;">
+                                <i class="bi bi-x-circle me-1"></i>Cancelar impressão na impressora
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="col-lg-5">
+            <div class="card shadow-lg h-100">
+                <div class="card-header">
+                    <h6><i class="bi bi-eye-fill text-success me-2"></i>Pré-visualização</h6>
+                </div>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center gap-4 p-4">
+
+                    <!-- Label mock -->
+                    <div class="preview-wrapper">
+                        <div class="label-card">
+                            <div class="label-text-col">
+                                <div class="label-row">
+                                    <span class="label-key">Fábrica:</span>
+                                    <span class="label-val empty" id="prevFabrica">—</span>
+                                </div>
+                                <div class="label-row">
+                                    <span class="label-key">Material:</span>
+                                    <span class="label-val empty" id="prevMaterial">—</span>
+                                </div>
+                                <div class="label-row" id="prevDescRow" style="display:none">
+                                    <span class="label-key">Desc.:</span>
+                                    <span class="label-val" id="prevDesc"></span>
+                                </div>
+                                <div class="label-row" id="prevUnidRow" style="display:none">
+                                    <span class="label-key">Unid.:</span>
+                                    <span class="label-val" id="prevUnid"></span>
+                                </div>
+                            </div>
+                            <div class="label-qr-col">
+                                <div id="qrcode" style="display:none;"></div>
+                                <div class="qr-empty" id="qrEmpty">
+                                    <i class="bi bi-qr-code"></i>
+                                    <span>QR Code</span>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-dim">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Proporção 70×25mm · ZQ521 · 203 DPI
+                        </small>
+                    </div>
+
+                    <!-- Printer badge -->
+                    <div class="w-100">
+                        <p class="form-label mb-2">Impressora selecionada</p>
+                        <div class="printer-badge">
+                            <span class="pulse-dot"></span>
+                            <span class="printer-name-badge" id="printerDisplay">{{ printers[0] }}</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1100;">
+    <div id="toast" class="toast text-white align-items-center border-0" role="alert" aria-live="assertive">
+        <div class="d-flex">
+            <div class="toast-body fw-semibold" id="toastMsg">—</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    const $fabrica  = document.getElementById('fabrica');
+    const $material = document.getElementById('material');
+    const $printer  = document.getElementById('printer');
+    const $copies   = document.getElementById('copies');
+
+    const $prevFab  = document.getElementById('prevFabrica');
+    const $prevMat  = document.getElementById('prevMaterial');
+    const $printerD = document.getElementById('printerDisplay');
+    const $qrWrap   = document.getElementById('qrcode');
+    const $qrEmpty  = document.getElementById('qrEmpty');
+    const $descricao = document.getElementById('descricao');
+    const $unidade   = document.getElementById('unidade');
+
+    const FONT_CSS = { P: '9px', M: '11.5px', G: '14px', XG: '17px' };
+
+    function getFontSize() {
+        return document.querySelector('input[name="fontSize"]:checked')?.value || 'M';
+    }
+
+    let qrObj = null;
+    let qrTimer = null;
+
+    // ── Preview update ──
+    function updatePreview() {
+        const fab = $fabrica.value.trim();
+        const mat = $material.value.trim();
+
+        $prevFab.textContent = fab || '—';
+        $prevFab.classList.toggle('empty', !fab);
+        $prevFab.style.fontSize = FONT_CSS[getFontSize()];
+
+        $prevMat.textContent = mat || '—';
+        $prevMat.classList.toggle('empty', !mat);
+        $prevMat.style.fontSize = FONT_CSS[getFontSize()];
+
+        const desc = $descricao.value.trim();
+        const unid = $unidade.value.trim();
+        const $prevDescRow = document.getElementById('prevDescRow');
+        const $prevUnidRow = document.getElementById('prevUnidRow');
+        $prevDescRow.style.display = desc ? '' : 'none';
+        if (desc) document.getElementById('prevDesc').textContent = desc;
+        $prevUnidRow.style.display = unid ? '' : 'none';
+        if (unid) document.getElementById('prevUnid').textContent = unid;
+
+        $printerD.textContent = $printer.value;
+
+        // QR Code debounced render
+        clearTimeout(qrTimer);
+        qrTimer = setTimeout(() => renderQR(mat), 250);
+    }
+
+    function renderQR(data) {
+        if (!data) {
+            $qrWrap.style.display = 'none';
+            $qrEmpty.style.display = '';
+            $qrWrap.innerHTML = '';
+            qrObj = null;
+            return;
+        }
+        $qrEmpty.style.display = 'none';
+        $qrWrap.style.display = '';
+        $qrWrap.innerHTML = '';
+        qrObj = new QRCode($qrWrap, {
+            text: data,
+            width: 92,
+            height: 92,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    }
+
+    $fabrica.addEventListener('input', updatePreview);
+    $material.addEventListener('input', updatePreview);
+    $descricao.addEventListener('input', updatePreview);
+    $unidade.addEventListener('input', updatePreview);
+    $printer.addEventListener('change', updatePreview);
+    document.querySelectorAll('input[name="fontSize"]').forEach(r => r.addEventListener('change', updatePreview));
+
+    // ── Copies +/- ──
+    const $copiesDisplay = document.getElementById('copiesDisplay');
+    document.getElementById('btnPlus').addEventListener('click', () => {
+        const v = parseInt($copies.value) || 1;
+        if (v < 999) { $copies.value = v + 1; $copiesDisplay.textContent = v + 1; }
+    });
+    document.getElementById('btnMinus').addEventListener('click', () => {
+        const v = parseInt($copies.value) || 1;
+        if (v > 1) { $copies.value = v - 1; $copiesDisplay.textContent = v - 1; }
+    });
+
+    // ── Printer radio cards ──
+    document.querySelectorAll('input[name="printerChoice"]').forEach(r => {
+        r.addEventListener('change', () => {
+            $printer.value = r.value;
+            updatePreview();
+        });
+    });
+
+    // ── Toast ──
+    function showToast(msg, ok) {
+        const el = document.getElementById('toast');
+        el.className = `toast text-white align-items-center border-0 ${ok ? 'bg-success' : 'bg-danger'}`;
+        document.getElementById('toastMsg').textContent = msg;
+        bootstrap.Toast.getOrCreateInstance(el, { delay: 4500 }).show();
+    }
+
+    // ── Mode toggle ──
+    const $paneInd   = document.getElementById('paneInd');
+    const $paneFila  = document.getElementById('paneFila');
+    const $btnPrintLabel = document.getElementById('btnPrintLabel');
+
+    function getMode() {
+        return document.querySelector('input[name="printMode"]:checked')?.value || 'ind';
+    }
+
+    document.querySelectorAll('input[name="printMode"]').forEach(r => r.addEventListener('change', () => {
+        const fila = getMode() === 'fila';
+        $paneInd.style.display  = fila ? 'none' : '';
+        $paneFila.style.display = fila ? '' : 'none';
+        $btnPrintLabel.textContent = fila ? 'Imprimir Fila' : 'Imprimir Etiqueta';
+        document.getElementById('copiesControl').style.display = fila ? 'none' : '';
+    }));
+
+    // ── Batch parsing ──
+    const $batchData     = document.getElementById('batchData');
+    const $batchPreview  = document.getElementById('batchPreview');
+    const $batchCount    = document.getElementById('batchCount');
+    const $batchTBody    = document.getElementById('batchTableBody');
+
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function parseBatch(raw) {
+        const items = [];
+        for (const line of raw.split('\n')) {
+            const t = line.trim();
+            if (!t) continue;
+            // tab-separated first, fall back to 2+ spaces
+            let cols = t.includes('\t') ? t.split('\t') : t.split(/  +/);
+            if (cols.length >= 2 && cols[0].trim() && cols[1].trim()) {
+                items.push({
+                    fabrica:  cols[0].trim(),
+                    material: cols[1].trim(),
+                    desc:     cols.length >= 3 ? cols[2].trim() : '',
+                    unidade:  (() => {
+                        const qty = cols.length >= 4 ? cols[3].trim() : '';
+                        const unit = cols.length >= 5 ? cols[4].trim() : '';
+                        return (qty && unit) ? `${qty} ${unit}` : (qty || unit);
+                    })(),
+                });
+            }
+        }
+        return items;
+    }
+
+    $batchData.addEventListener('input', () => {
+        const items = parseBatch($batchData.value);
+        $batchCount.textContent = `${items.length} ${items.length === 1 ? 'item' : 'itens'}`;
+        $batchTBody.innerHTML = items.map(it =>
+            `<tr>
+                <td>${escHtml(it.fabrica)}</td>
+                <td>${escHtml(it.material)}</td>
+                <td style="color:var(--text-muted)">${escHtml(it.desc)}</td>
+                <td style="color:var(--text-muted)">${escHtml(it.unidade)}</td>
+             </tr>`
+        ).join('');
+        $batchPreview.style.display = items.length ? '' : 'none';
+    });
+
+    // ── Submit ──
+    document.getElementById('labelForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnPrint');
+        const savedHtml = btn.innerHTML;
+        btn.disabled = true;
+
+        try {
+            if (getMode() === 'fila') {
+                const items = parseBatch($batchData.value);
+                if (!items.length) { showToast('Nenhum item válido encontrado.', false); return; }
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Enviando ${items.length} etiquetas...`;
+                const res = await fetch('/print-batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data:      $batchData.value,
+                        printer:   $printer.value,
+                        font_size: getFontSize(),
+                    })
+                });
+                const json = await res.json();
+                showToast(json.message, json.success);
+            } else {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+                const res = await fetch('/print', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fabrica:   $fabrica.value.trim(),
+                        material:  $material.value.trim(),
+                        descricao: $descricao.value.trim(),
+                        unidade:   $unidade.value.trim(),
+                        copies:    parseInt($copies.value) || 1,
+                        printer:   $printer.value,
+                        font_size: getFontSize(),
+                    })
+                });
+                const json = await res.json();
+                showToast(json.message, json.success);
+            }
+        } catch {
+            showToast('Erro de conexão com o servidor.', false);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = savedHtml;
+        }
+    });
+
+    // ── Cancelar impressão ──
+    document.getElementById('btnCancel').addEventListener('click', async () => {
+        const btn = document.getElementById('btnCancel');
+        const saved = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Cancelando...';
+        try {
+            const res = await fetch('/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ printer: $printer.value })
+            });
+            const json = await res.json();
+            showToast(json.message, json.success);
+        } catch {
+            showToast('Erro ao cancelar.', false);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = saved;
+        }
+    });
+</script>
+</body>
+</html>
