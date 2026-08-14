@@ -167,7 +167,7 @@
             background: #fff;
             border-radius: 5px;
             box-shadow: 0 6px 28px rgba(0,0,0,.5);
-            max-width: 350px;
+            max-width: 420px;
             width: 100%;
             aspect-ratio: 14 / 5;
             display: flex;
@@ -372,6 +372,27 @@
         .batch-table-wrap thead th { color: var(--text-muted); background: var(--bg-base); position: sticky; top: 0; }
         .batch-count { font-size: .72rem; font-weight: 700; background: rgba(59,130,246,.2); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); border-radius: 20px; padding: 1px 10px; }
 
+        /* ── Cabeçalho de seção ── */
+        .section-header {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin: 1.2rem 0 .9rem;
+            padding-bottom: .5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── Fundo do preview ── */
+        .preview-bg {
+            background:
+                radial-gradient(circle, var(--border) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: center;
+            border-radius: 0 0 14px 14px;
+        }
+
         /* ── Responsividade ── */
         @media (max-width: 575px) {
             .app-nav .sub { display: none; }
@@ -407,10 +428,10 @@
 
 <!-- ── Main ── -->
 <div class="container py-3 py-md-4">
-    <div class="row justify-content-center g-3 g-lg-4">
+    <div class="row g-3">
 
         <!-- Form -->
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-lg-6 col-xl-5">
             <div class="card shadow-lg">
                 <div class="card-header">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -429,7 +450,7 @@
                         <!-- ── Painel: Individual ── -->
                         <div id="paneInd">
                         <!-- Fábrica -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label">
                                 <span class="badge-fixed me-2">FIXO</span>Fábrica
                             </label>
@@ -438,30 +459,26 @@
                         </div>
 
                         <!-- Material -->
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <label class="form-label">
                                 <span class="badge-fixed me-2">FIXO</span>Material
                             </label>
                             <input id="material" type="text" class="form-control" required
                                    placeholder="Ex: 100012345" maxlength="20" autocomplete="off">
-                            <p class="hint-text">
-                                <i class="bi bi-qr-code me-1"></i>
-                                O QR Code será gerado com o código do material.
-                            </p>
                         </div>
 
-                        <!-- Descrição (opcional) -->
-                        <div class="mb-3">
-                            <label class="form-label">Descrição <span style="font-size:.7rem;font-weight:400;text-transform:none;color:var(--text-muted)">(opcional)</span></label>
-                            <input id="descricao" type="text" class="form-control"
-                                   placeholder="Ex: PARAF SEX-IN M6X1X70" maxlength="40" autocomplete="off">
-                        </div>
-
-                        <!-- Unidade (opcional) -->
-                        <div class="mb-2">
-                            <label class="form-label">Unidade <span style="font-size:.7rem;font-weight:400;text-transform:none;color:var(--text-muted)">(opcional)</span></label>
-                            <input id="unidade" type="text" class="form-control"
-                                   placeholder="Ex: UN" maxlength="10" autocomplete="off">
+                        <!-- Descrição + Unidade -->
+                        <div class="row g-2 mb-2">
+                            <div class="col-8">
+                                <label class="form-label">Descrição <span style="font-size:.7rem;font-weight:400;text-transform:none;color:var(--text-muted)">(opcional)</span></label>
+                                <input id="descricao" type="text" class="form-control"
+                                       placeholder="Ex: PARAF M6X70" maxlength="40" autocomplete="off">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label">Unidade <span style="font-size:.7rem;font-weight:400;text-transform:none;color:var(--text-muted)">(opcional)</span></label>
+                                <input id="unidade" type="text" class="form-control"
+                                       placeholder="UN" maxlength="10" autocomplete="off">
+                            </div>
                         </div>
                         </div><!-- /#paneInd -->
 
@@ -518,13 +535,15 @@ IA02&#9;18927902&#9;Descrição&#9;149&#9;UN"></textarea>
                             </div>
                         </div>
 
-                        <hr class="divider">
+                        <!-- Impressão -->
+                        <p class="section-header"><i class="bi bi-printer me-2"></i>Impressão</p>
 
                         <!-- Impressora -->
                         <label class="form-label">Impressora</label>
-                        <div class="d-flex flex-column gap-2 mb-3">
+                        <div class="row g-2 mb-3">
                             {% for p in printers %}
-                            <label class="printer-opt">
+                            <div class="col-12 col-sm-6">
+                            <label class="printer-opt h-100">
                                 <input type="radio" name="printerChoice" value="{{ p.key }}"
                                        {% if loop.first %}checked{% endif %} autocomplete="off">
                                 <span class="pulse-dot" style="flex-shrink:0"></span>
@@ -534,6 +553,7 @@ IA02&#9;18927902&#9;Descrição&#9;149&#9;UN"></textarea>
                                 </div>
                                 <i class="bi bi-check-circle-fill printer-opt-check"></i>
                             </label>
+                            </div>
                             {% endfor %}
                         </div>
                         <select id="printer" style="display:none">
@@ -575,12 +595,12 @@ IA02&#9;18927902&#9;Descrição&#9;149&#9;UN"></textarea>
         </div>
 
         <!-- Preview -->
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-lg-6 col-xl-7">
             <div class="card shadow-lg h-100">
                 <div class="card-header">
                     <h6><i class="bi bi-eye-fill text-success me-2"></i>Pré-visualização</h6>
                 </div>
-                <div class="card-body d-flex flex-column align-items-center justify-content-center gap-4 p-3 p-md-4">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center gap-4 p-3 p-md-4 preview-bg">
 
                     <!-- Label mock -->
                     <div class="preview-wrapper">
@@ -611,9 +631,8 @@ IA02&#9;18927902&#9;Descrição&#9;149&#9;UN"></textarea>
                                 </div>
                             </div>
                         </div>
-                        <small class="text-dim">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Proporção 70×25mm · ZQ521 · 203 DPI
+                        <small class="text-dim" style="font-size:.68rem;opacity:.7">
+                            70 × 25 mm · 203 DPI
                         </small>
                     </div>
 
