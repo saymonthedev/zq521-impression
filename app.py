@@ -36,9 +36,9 @@ def _logo_zpl() -> str:
     """Converte weg_logo.png para campo gráfico ZPL (cacheado)."""
     try:
         from PIL import Image
-        # Zona: canto superior direito, MESMA largura do QR code (^BQN,2,5 = 21 módulos × mag 5)
+        # Zona: canto superior direito, MESMA largura do QR code (^BQN,2,4 = 21 módulos × mag 4)
         QR_X = 405
-        QR_WIDTH_APPROX = 105  # ~21 módulos * magnificação 5
+        QR_WIDTH_APPROX = 84  # ~21 módulos * magnificação 4
 
         img = Image.open(_LOGO_PNG).convert("RGBA")
         bbox = img.getbbox()  # bbox dos pixels não-transparentes
@@ -110,7 +110,7 @@ def generate_zpl(fabrica: str, material: str, copies: int, font_size: str = "M",
         "^LL200\n"
         "^LH0,0\n"
         + fields +
-        f"^FO405,93^BQN,2,5^FDQA,{m}^FS\n"
+        f"^FO405,93^BQN,2,4^FDQA,{m}^FS\n"
         + (_logo_zpl() + "\n")
         + f"^PQ{copies},0,1,Y\n"
         "^XZ"
