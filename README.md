@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🖨️ Impressão Almox · ZQ521
+# Impressão Almox · ZQ521
 
 **Aplicação web local para impressão de etiquetas ZPL em impressoras Zebra ZQ521** (25 × 70 mm) via rede TCP — sem drivers, sem fila de impressão do Windows.
 
@@ -14,35 +14,35 @@
 
 ---
 
-## 📋 Sumário
+## Sumário
 
-- [Funcionalidades](#-funcionalidades)
-- [Impressoras configuradas](#-impressoras-configuradas)
-- [Instalação](#-instalação)
-- [Como funciona](#-como-funciona)
-- [Estrutura do projeto](#-estrutura-do-projeto)
-- [Orientação das impressoras](#-orientação-das-impressoras)
-- [Tecnologias](#-tecnologias)
+- [Funcionalidades](#funcionalidades)
+- [Impressoras configuradas](#impressoras-configuradas)
+- [Instalação](#instalação)
+- [Como funciona](#como-funciona)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Orientação das impressoras](#orientação-das-impressoras)
+- [Tecnologias](#tecnologias)
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-| | |
+| Recurso | Descrição |
 |---|---|
-| 🏷️ **Modo Individual** | Preencha Fábrica, Material, Descrição e Unidade (últimos dois opcionais) |
-| 📋 **Modo Fila** | Cole uma seleção TSV direto do SAP e imprima todos os itens em lote |
-| 🖨️ **Seletor de impressora** | Cards visuais com nome e IP de cada equipamento |
-| 🔢 **Stepper de cópias** | Controle rápido de quantidade com botões +/− |
-| 🔤 **4 tamanhos de fonte** | Pequena · Média · Grande · Extra Grande |
-| 📱 **Preview ao vivo** | Visualização da etiqueta com QR code em tempo real |
-| 🛑 **Cancelamento de fila** | Interrompe a impressão em andamento (`~JA` via TCP) |
-| 🌗 **Tema claro/escuro** | Cor base RAL 5009 (Azure Blue), com toggle persistente |
-| 📐 **Responsivo** | Funciona em desktop, tablet e celular |
+| **Modo Individual** | Preencha Fábrica, Material, Descrição e Unidade (últimos dois opcionais) |
+| **Modo Fila** | Cole uma seleção TSV direto do SAP e imprima todos os itens em lote |
+| **Seletor de impressora** | Cards visuais com nome e IP de cada equipamento |
+| **Stepper de cópias** | Controle rápido de quantidade com botões +/− |
+| **4 tamanhos de fonte** | Pequena · Média · Grande · Extra Grande |
+| **Preview ao vivo** | Visualização da etiqueta com QR code em tempo real |
+| **Cancelamento de fila** | Interrompe a impressão em andamento (`~JA` via TCP) |
+| **Tema claro/escuro** | Cor base RAL 5009 (Azure Blue), com toggle persistente |
+| **Responsivo** | Funciona em desktop, tablet e celular |
 
 ---
 
-## 🖥️ Impressoras configuradas
+## Impressoras configuradas
 
 | Nome | IP |
 |---|---|
@@ -53,7 +53,7 @@
 
 ---
 
-## 🚀 Instalação
+## Instalação
 
 ### Pré-requisitos
 
@@ -75,9 +75,9 @@ instalar.bat
 ```
 
 O script automaticamente:
-- ✅ Gera o `icon.ico` da aplicação
-- ✅ Cria o atalho **IMPRESSAO ALMOX** na área de trabalho
-- ✅ Configura o início automático do servidor no login do Windows
+- Gera o `icon.ico` da aplicação
+- Cria o atalho **IMPRESSAO ALMOX** na área de trabalho
+- Configura o início automático do servidor no login do Windows
 
 ### 3. Acessar
 
@@ -89,7 +89,7 @@ http://<nome-do-computador>:5000/
 
 ---
 
-## ⚙️ Como funciona
+## Como funciona
 
 ```mermaid
 flowchart LR
@@ -103,7 +103,7 @@ O app monta o comando ZPL (texto, QR code e logo) inteiramente em Python e envia
 
 ---
 
-## 📁 Estrutura do projeto
+## Estrutura do projeto
 
 ```
 zq521-impression/
@@ -122,7 +122,7 @@ zq521-impression/
 
 ---
 
-## 🔄 Orientação das impressoras
+## Orientação das impressoras
 
 A bobina é carregada fisicamente invertida. O comando `^POI` corrige a rotação em 180° e já está embutido no ZPL gerado pelo app.
 
@@ -134,7 +134,7 @@ python fix_orientation.py
 
 ---
 
-## 🧰 Tecnologias
+## Tecnologias
 
 - [Flask](https://flask.palletsprojects.com/) — servidor web
 - [Pillow](https://python-pillow.org/) — conversão da logo para bitmap ZPL
