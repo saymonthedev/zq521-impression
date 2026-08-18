@@ -58,7 +58,7 @@ def _logo_zpl() -> str:
 
         # Mesma borda esquerda do QR code (larguras iguais = bordas direitas também iguais)
         x = QR_X
-        y = 14
+        y = 24
 
         bpr = (W + 7) // 8
         rows = []
@@ -93,7 +93,7 @@ def generate_zpl(fabrica: str, material: str, copies: int, font_size: str = "M",
     n = len(rows)
     gap = 8
     total = n * h + (n - 1) * gap
-    y = (200 - total) // 2
+    y = (200 - total) // 2 + 15
     val_x = 15 + int(9 * w * 0.65) + 8
 
     fields = ""
