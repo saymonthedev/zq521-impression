@@ -36,11 +36,9 @@ def _logo_zpl() -> str:
     """Converte weg_logo.png para campo gráfico ZPL (cacheado)."""
     try:
         from PIL import Image
-        # Zona: canto superior direito, centralizada com o QR code (largura aprox.)
+        # Zona: canto superior direito, MESMA largura do QR code (^BQN,2,5 = 21 módulos × mag 5)
         QR_X = 405
-        QR_WIDTH_APPROX = 100  # largura aproximada do QR (^BQN,2,4)
-        H_MAX = 60
-        W_MAX = 150
+        QR_WIDTH_APPROX = 105  # ~21 módulos * magnificação 5
 
         img = Image.open(_LOGO_PNG).convert("RGBA")
         bbox = img.getbbox()  # bbox dos pixels não-transparentes
@@ -53,14 +51,14 @@ def _logo_zpl() -> str:
         img = Image.alpha_composite(white_bg, img).convert("L")
 
         orig_w, orig_h = img.size
-        scale = min(W_MAX / orig_w, H_MAX / orig_h)
-        W = max(1, round(orig_w * scale))
-        H = max(1, round(orig_h * scale))
+        # Largura fixa = largura do QR (não apenas "cabe dentro"), altura via aspect ratio
+        W = QR_WIDTH_APPROX
+        H = max(1, round(orig_h * (W / orig_w)))
         img = img.resize((W, H), Image.LANCZOS)
 
-        # Centraliza horizontalmente sobre a largura aproximada do QR code
-        x = QR_X + (QR_WIDTH_APPROX - W) // 2
-        y = 8
+        # Mesma borda esquerda do QR code (larguras iguais = bordas direitas também iguais)
+        x = QR_X
+        y = 14
 
         bpr = (W + 7) // 8
         rows = []
@@ -112,7 +110,7 @@ def generate_zpl(fabrica: str, material: str, copies: int, font_size: str = "M",
         "^LL200\n"
         "^LH0,0\n"
         + fields +
-        f"^FO405,95^BQN,2,4^FDQA,{m}^FS\n"
+        f"^FO405,93^BQN,2,5^FDQA,{m}^FS\n"
         + (_logo_zpl() + "\n")
         + f"^PQ{copies},0,1,Y\n"
         "^XZ"
