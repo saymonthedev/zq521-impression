@@ -98,8 +98,8 @@ def generate_zpl(fabrica: str, material: str, copies: int, font_size: str = "M",
 
     fields = ""
     for label, value in rows:
-        fields += f"^FO15,{y}^A@N,{h},{w},E:POPPINS.TTF^FD{label}^FS\n"
-        fields += f"^FO{val_x},{y}^A@N,{h},{w},E:POPPINS.TTF^FD{value}^FS\n"
+        fields += f"^FO15,{y}^A0N,{h},{w}^FD{label}^FS\n"
+        fields += f"^FO{val_x},{y}^A0N,{h},{w}^FD{value}^FS\n"
         y += h + gap
 
     zpl = (
