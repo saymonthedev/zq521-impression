@@ -263,11 +263,18 @@
         .label-qr-col {
             width: 108px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             border-left: 1.5px dashed #e5e7eb;
             padding: 6px;
             flex-shrink: 0;
+        }
+        .label-weg-logo {
+            width: 72px;
+            height: auto;
+            object-fit: contain;
+            opacity: .85;
         }
         #qrcode canvas, #qrcode img {
             max-width: 92px !important;
@@ -677,6 +684,7 @@ IA02&#9;18927902&#9;Descrição&#9;149&#9;UN"></textarea>
                                     <i class="bi bi-qr-code"></i>
                                     <span>QR Code</span>
                                 </div>
+                                <img src="/static/weg_logo.png" class="label-weg-logo" alt="WEG">
                             </div>
                         </div>
                         <small class="text-dim" style="font-size:.68rem;opacity:.7">

@@ -36,19 +36,36 @@ def _logo_zpl() -> str:
     """Converte weg_logo.png para campo gráfico ZPL (cacheado)."""
     try:
         from PIL import Image
-        W, H = 148, 44
-        img = Image.open(_LOGO_PNG).convert("L").resize((W, H), Image.LANCZOS)
+        # Zone: bottom-right, below QR (which can reach y≈150 for version-2 codes)
+        W_MAX, H_MAX = 144, 40
+        ZONE_X, ZONE_Y = 408, 155
+
+        img = Image.open(_LOGO_PNG).convert("L")
+        bbox = img.getbbox()
+        if bbox:
+            img = img.crop(bbox)
+
+        orig_w, orig_h = img.size
+        scale = min(W_MAX / orig_w, H_MAX / orig_h)
+        W = max(1, round(orig_w * scale))
+        H = max(1, round(orig_h * scale))
+        img = img.resize((W, H), Image.LANCZOS)
+
+        # Center within zone
+        x = ZONE_X + (W_MAX - W) // 2
+        y = ZONE_Y + (H_MAX - H) // 2
+
         bpr = (W + 7) // 8
         rows = []
         for row_y in range(H):
             row = bytearray(bpr)
-            for x in range(W):
-                if img.getpixel((x, row_y)) < 128:
-                    row[x // 8] |= 0x80 >> (x % 8)
+            for px in range(W):
+                if img.getpixel((px, row_y)) < 128:
+                    row[px // 8] |= 0x80 >> (px % 8)
             rows.append(bytes(row))
         data = b"".join(rows)
         total = bpr * H
-        return f"^FO408,4^GFA,{total},{total},{bpr},{data.hex().upper()}^FS"
+        return f"^FO{x},{y}^GFA,{total},{total},{bpr},{data.hex().upper()}^FS"
     except Exception:
         return ""
 
