@@ -36,14 +36,20 @@ def _logo_zpl() -> str:
     """Converte weg_logo.png para campo gráfico ZPL (cacheado)."""
     try:
         from PIL import Image
-        # Zone: bottom-right, below QR (which can reach y≈150 for version-2 codes)
-        W_MAX, H_MAX = 144, 40
-        ZONE_X, ZONE_Y = 408, 155
+        # Zona: mesma borda esquerda (X) do QR code, logo abaixo dele
+        QR_X = 405
+        H_MAX = 40
+        W_MAX = 130
 
-        img = Image.open(_LOGO_PNG).convert("L")
-        bbox = img.getbbox()
+        img = Image.open(_LOGO_PNG).convert("RGBA")
+        bbox = img.getbbox()  # bbox dos pixels não-transparentes
         if bbox:
             img = img.crop(bbox)
+
+        # Compõe sobre fundo branco ANTES de converter pra escala de cinza,
+        # senão pixels transparentes (0,0,0,0) viram preto e "colam" na logo.
+        white_bg = Image.new("RGBA", img.size, (255, 255, 255, 255))
+        img = Image.alpha_composite(white_bg, img).convert("L")
 
         orig_w, orig_h = img.size
         scale = min(W_MAX / orig_w, H_MAX / orig_h)
@@ -51,9 +57,9 @@ def _logo_zpl() -> str:
         H = max(1, round(orig_h * scale))
         img = img.resize((W, H), Image.LANCZOS)
 
-        # Center within zone
-        x = ZONE_X + (W_MAX - W) // 2
-        y = ZONE_Y + (H_MAX - H) // 2
+        # Alinha a borda esquerda com a do QR code (mesmo X)
+        x = QR_X
+        y = 155 + (H_MAX - H) // 2
 
         bpr = (W + 7) // 8
         rows = []
