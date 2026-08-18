@@ -1,5 +1,7 @@
+import os
 import re
 import socket
+from functools import lru_cache
 from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
@@ -24,6 +26,31 @@ FONT_SIZES = {
 def sanitize_zpl(value: str) -> str:
     """Strip ZPL control characters (^ and ~) to prevent command injection."""
     return value.replace("^", "").replace("~", "")
+
+
+_LOGO_PNG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "weg_logo.png")
+
+
+@lru_cache(maxsize=1)
+def _logo_zpl() -> str:
+    """Converte weg_logo.png para campo gráfico ZPL (cacheado)."""
+    try:
+        from PIL import Image
+        W, H = 148, 44
+        img = Image.open(_LOGO_PNG).convert("L").resize((W, H), Image.LANCZOS)
+        bpr = (W + 7) // 8
+        rows = []
+        for row_y in range(H):
+            row = bytearray(bpr)
+            for x in range(W):
+                if img.getpixel((x, row_y)) < 128:
+                    row[x // 8] |= 0x80 >> (x % 8)
+            rows.append(bytes(row))
+        data = b"".join(rows)
+        total = bpr * H
+        return f"^FO408,4^GFA,{total},{total},{bpr},{data.hex().upper()}^FS"
+    except Exception:
+        return ""
 
 
 def generate_zpl(fabrica: str, material: str, copies: int, font_size: str = "M",
@@ -56,12 +83,14 @@ def generate_zpl(fabrica: str, material: str, copies: int, font_size: str = "M",
     zpl = (
         "^XA\n"
         "^CI28\n"
+        "^POI\n"
         "^PW560\n"
         "^LL200\n"
         "^LH0,0\n"
         + fields +
         f"^FO405,50^BQN,2,4^FDQA,{m}^FS\n"
-        f"^PQ{copies},0,1,Y\n"
+        + (_logo_zpl() + "\n")
+        + f"^PQ{copies},0,1,Y\n"
         "^XZ"
     )
     return zpl.encode("utf-8")
