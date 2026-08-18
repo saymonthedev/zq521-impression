@@ -36,7 +36,7 @@ def _logo_zpl() -> str:
     """Converte weg_logo.png para campo gráfico ZPL (cacheado)."""
     try:
         from PIL import Image
-        # Zona: mesma borda esquerda (X) do QR code, logo abaixo dele
+        # Zona: canto superior direito, mesma borda esquerda (X) do QR code
         QR_X = 405
         H_MAX = 40
         W_MAX = 130
@@ -57,9 +57,9 @@ def _logo_zpl() -> str:
         H = max(1, round(orig_h * scale))
         img = img.resize((W, H), Image.LANCZOS)
 
-        # Alinha a borda esquerda com a do QR code (mesmo X)
+        # Alinha a borda esquerda com a do QR code (mesmo X), no topo
         x = QR_X
-        y = 155 + (H_MAX - H) // 2
+        y = 10
 
         bpr = (W + 7) // 8
         rows = []
@@ -111,7 +111,7 @@ def generate_zpl(fabrica: str, material: str, copies: int, font_size: str = "M",
         "^LL200\n"
         "^LH0,0\n"
         + fields +
-        f"^FO405,50^BQN,2,4^FDQA,{m}^FS\n"
+        f"^FO405,80^BQN,2,4^FDQA,{m}^FS\n"
         + (_logo_zpl() + "\n")
         + f"^PQ{copies},0,1,Y\n"
         "^XZ"
